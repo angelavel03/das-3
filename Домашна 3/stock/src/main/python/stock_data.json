@@ -1,0 +1,52 @@
+[
+    {
+        "company_name": "Apple",
+        "Date": "2023-12-01",
+        "Last trade price": 178.23
+    },
+    {
+        "company_name": "Apple",
+        "Date": "2023-12-02",
+        "Last trade price": 180.12
+    },
+    {
+        "company_name": "Microsoft",
+        "Date": "2023-12-01",
+        "Last trade price": 324.56
+    },
+    {
+        "company_name": "Microsoft",
+        "Date": "2023-12-02",
+        "Last trade price": 328.89
+    },
+    {
+        "company_name": "Amazon",
+        "Date": "2023-12-01",
+        "Last trade price": 136.78
+    },
+    {
+        "company_name": "Amazon",
+        "Date": "2023-12-02",
+        "Last trade price": 139.44
+    },
+    {
+        "company_name": "Tesla",
+        "Date": "2023-12-01",
+        "Last trade price": 250.35
+    },
+    {
+        "company_name": "Tesla",
+        "Date": "2023-12-02",
+        "Last trade price": 260.22
+    },
+    {
+        "company_name": "Google",
+        "Date": "2023-12-01",
+        "Last trade price": 2893.45
+    },
+    {
+        "company_name": "Google",
+        "Date": "2023-12-02",
+        "Last trade price": 2900.67
+    }
+]
