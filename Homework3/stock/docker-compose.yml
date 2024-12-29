@@ -1,0 +1,18 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:17
+    container_name: stocks_app
+    restart: always
+    environment:
+      POSTGRES_DB: stocks
+      POSTGRES_USER: stocks_db
+      POSTGRES_PASSWORD: stockadmin123
+    ports:
+      - "8085:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
