@@ -24,6 +24,7 @@ public class HomeController {
     @GetMapping("/api/stocks/{name}")
     public ResponseEntity<List<Stock>> getStocks(@PathVariable String name) {
         List<Stock> stocks = stockService.getAllStocksByIssuerName(name);
+        stockService.generateAnalysisByIssuerName(name);
         return new ResponseEntity<>(stocks, HttpStatus.OK);
     }
 }

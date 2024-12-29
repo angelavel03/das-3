@@ -1,16 +1,21 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import requests
+import sys
 import numpy as np
 import json
 
-# Load data from a JSON file
-def load_data_from_json(file_path):
-    with open(file_path, 'r') as file:
-        data = json.load(file)
+# Load data from a JURL
+def load_data_from_url(url):
+    response = requests.get(url)
+    response.raise_for_status()  # Ensure we handle HTTP errors
+    data = response.json()
     return pd.DataFrame(data)
 
+name = sys.argv[1]
+
 # Ensure the JSON file is correctly loaded
-data = load_data_from_json("stock_data.json")
+data = load_data_from_url("http://localhost:8080/api/stocks/" + name)
 
 # Ensure the Date column is in datetime format
 data['date'] = pd.to_datetime(data['date'])
@@ -59,5 +64,4 @@ plt.legend(loc='upper left')
 plt.grid()
 
 plt.tight_layout()
-plt.savefig("stock_analysis_plot.png", dpi=300)
-plt.show()
+plt.savefig(f"/src/main/python/analysis/{name}.png", dpi=300)
