@@ -1,67 +1,102 @@
-import pandas as pd
-import matplotlib.pyplot as plt
 import requests
-import sys
+import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import json
+from bs4 import BeautifulSoup
 
-# Load data from a JURL
+# Step 1: Send a GET request to the website
+url = 'https://www.mse.mk/en/stats/symbolhistory/mpt'  # Replace with the URL of the site you want to scrape
+response = requests.get(url)
+
+# Step 2: Parse the HTML content using BeautifulSoup
+soup = BeautifulSoup(response.text, 'html.parser')
+
+# Step 3: Extract data (example: extract all links)
+options = soup.find_all('option')
+
+# Load data from the API
 def load_data_from_url(url):
     response = requests.get(url)
     response.raise_for_status()  # Ensure we handle HTTP errors
-    data = response.json()
-    return pd.DataFrame(data)
+    return response.json()
 
-name = sys.argv[1]
+for issuer in options:
+    api_url = f"http://localhost:8080/api/stocks/" + issuer.text  # Fetch data from API URL
 
-# Ensure the JSON file is correctly loaded
-data = load_data_from_url("http://localhost:8080/api/stocks/" + name)
+    # Step 2: Process the data into a DataFrame
+    data_list = load_data_from_url(api_url)
+    df = pd.DataFrame(data_list)
+    df['date'] = pd.to_datetime(df['date'])  # Convert to datetime
+    df.set_index('date', inplace=True)
 
-# Ensure the Date column is in datetime format
-data['date'] = pd.to_datetime(data['date'])
-data = data.sort_values(by='date')  # Sort by date
+    # Step 3: Calculate Moving Averages and Other Indicators
+    df['SMA'] = df['lastTradePrice'].rolling(window=30).mean()  # Simple Moving Average (SMA)
+    df['EMA'] = df['lastTradePrice'].ewm(span=30, adjust=False).mean()  # Exponential Moving Average (EMA)
 
-# Calculate SMA (Simple Moving Average)
-data['SMA_20'] = data['lastTradePrice'].rolling(window=20).mean()
-data['SMA_50'] = data['lastTradePrice'].rolling(window=50).mean()
+    # Relative Strength Index (RSI)
+    delta = df['lastTradePrice'].diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(window=14).mean()
+    avg_loss = loss.rolling(window=14).mean()
+    rs = avg_gain / avg_loss
+    df['RSI'] = 100 - (100 / (1 + rs))
 
-# Calculate EMA (Exponential Moving Average)
-data['EMA_20'] = data['lastTradePrice'].ewm(span=20, adjust=False).mean()
-data['EMA_50'] = data['lastTradePrice'].ewm(span=50, adjust=False).mean()
+    # Moving Average Convergence Divergence (MACD)
+    df['EMA12'] = df['lastTradePrice'].ewm(span=12, adjust=False).mean()
+    df['EMA26'] = df['lastTradePrice'].ewm(span=26, adjust=False).mean()
+    df['MACD'] = df['EMA12'] - df['EMA26']
+    df['MACD_signal'] = df['MACD'].ewm(span=9, adjust=False).mean()
 
-# Calculate RSI (Relative Strength Index)
-def calculate_rsi(prices, window=14):
-    delta = prices.diff()
-    gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
-    loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
-    rs = gain / loss
-    rsi = 100 - (100 / (1 + rs))
-    return rsi
+    # Williams %R
+    highest_high = df['lastTradePrice'].rolling(window=14).max()
+    lowest_low = df['lastTradePrice'].rolling(window=14).min()
+    df['Williams %R'] = ((highest_high - df['lastTradePrice']) / (highest_high - lowest_low)) * -100
 
-data['RSI'] = calculate_rsi(data['lastTradePrice'])
+    # Ultimate Oscillator
+    fast_period = 7
+    mid_period = 14
+    slow_period = 28
+    df['fast'] = (df['lastTradePrice'].rolling(window=fast_period).max() - df['lastTradePrice']) / \
+        (df['lastTradePrice'].rolling(window=fast_period).max() - df['lastTradePrice'].rolling(window=fast_period).min())
+    df['mid'] = (df['lastTradePrice'].rolling(window=mid_period).max() - df['lastTradePrice']) / \
+        (df['lastTradePrice'].rolling(window=mid_period).max() - df['lastTradePrice'].rolling(window=mid_period).min())
+    df['slow'] = (df['lastTradePrice'].rolling(window=slow_period).max() - df['lastTradePrice']) / \
+        (df['lastTradePrice'].rolling(window=slow_period).max() - df['lastTradePrice'].rolling(window=slow_period).min())
 
-# Plot the data
-plt.figure(figsize=(14, 8))
+    df['Ultimate Oscillator'] = (4 * df['fast'] + 2 * df['mid'] + df['slow']) / 7
 
-# Plot Last trade price and moving averages
-plt.subplot(2, 1, 1)
-plt.plot(data['date'], data['lastTradePrice'], label='Last Trade Price', color='black')
-plt.plot(data['date'], data['SMA_20'], label='SMA 20', color='blue', linestyle='--')
-plt.plot(data['date'], data['SMA_50'], label='SMA 50', color='red', linestyle='--')
-plt.plot(data['date'], data['EMA_20'], label='EMA 20', color='green', linestyle='-.')
-plt.plot(data['date'], data['EMA_50'], label='EMA 50', color='orange', linestyle='-.')
-plt.title('Stock Prices with Moving Averages')
-plt.legend(loc='upper left')
-plt.grid()
+    # Step 4: Generate Buy/Sell/Hold signals based on indicator thresholds
+    df['RSI_signal'] = np.where(df['RSI'] < 30, 'Buy', np.where(df['RSI'] > 70, 'Sell', 'Hold'))
+    df['MACD_signal'] = np.where(df['MACD'] > df['MACD_signal'], 'Buy', np.where(df['MACD'] < df['MACD_signal'], 'Sell', 'Hold'))
+    df['Williams_signal'] = np.where(df['Williams %R'] < -80, 'Buy', np.where(df['Williams %R'] > -20, 'Sell', 'Hold'))
+    df['Ultimate_signal'] = np.where(df['Ultimate Oscillator'] < 30, 'Buy', np.where(df['Ultimate Oscillator'] > 70, 'Sell', 'Hold'))
 
-# Plot RSI
-plt.subplot(2, 1, 2)
-plt.plot(data['date'], data['RSI'], label='RSI', color='purple')
-plt.axhline(70, color='red', linestyle='--', linewidth=0.8, label='Overbought (70)')
-plt.axhline(30, color='green', linestyle='--', linewidth=0.8, label='Oversold (30)')
-plt.title('Relative Strength Index (RSI)')
-plt.legend(loc='upper left')
-plt.grid()
+    # Step 5: Prepare the output in JSON format for Java to consume
+    output = {
+        "stock": "ALK",
+        "signals": {
+            "RSI_signal": df['RSI_signal'].tail(1).iloc[0],
+            "MACD_signal": df['MACD_signal'].tail(1).iloc[0],
+            "Williams_signal": df['Williams_signal'].tail(1).iloc[0],
+            "Ultimate_signal": df['Ultimate_signal'].tail(1).iloc[0]
+        }
+    }
 
-plt.tight_layout()
-plt.savefig(f"/src/main/python/analysis/{name}.png", dpi=300)
+    # Return the result as JSON for Java to consume
+    print(json.dumps(output))
+
+    # Optionally, save the plot
+    image_path = f"./results/{issuer.text}_stock_analysis.png"
+    plt.figure(figsize=(12, 6))
+    plt.plot(df['lastTradePrice'], label='Last Trade Price', color='black')
+    plt.plot(df['SMA'], label='SMA (30)', color='blue')
+    plt.plot(df['EMA'], label='EMA (30)', color='red')
+    plt.title(f"Stock Price Analysis with Technical Indicators for ALK")
+    plt.xlabel('Date')
+    plt.ylabel('Price')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(image_path)
+    plt.savefig(image_path)
