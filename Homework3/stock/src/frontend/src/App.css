@@ -1,0 +1,129 @@
+#homepage-title{
+  font-size: 50px;
+  text-align: center;
+  width: 60%;
+  margin: auto;
+  margin-top: 30px;
+  font-family: sans-serif;
+
+}
+
+#homepage-subtitle{
+  font-size: 25px;
+  text-align: center;
+  margin-top: 40px;
+  font-family: sans-serif;
+
+
+}
+
+#kompanija{
+  font-size: 25px;
+  text-align: center;
+  margin-top: 70px;
+  font-family: sans-serif;
+
+}
+#comp{
+  border-radius: 5px;
+  width: 170px;
+  height: 30px;
+  color: white;
+  background-color: #8A0E9B;
+  text-align: center;
+  font-size: 13px;
+  font-family: sans-serif;
+
+}
+option{
+  background-color: white;
+  color: black;
+}
+#btn-odberi{
+  border-radius: 5px;
+  width: 100px;
+  height: 30px;
+  color: white;
+  background-color: #8A0E9B;
+  text-align: center;
+  font-size: 13px;
+  border-color: #8A0E9B;
+  margin-left: 25px;
+  font-family: sans-serif;
+  
+}
+#form{
+  width: fit-content;
+  margin: auto;
+}
+
+
+#stock-title{
+  font-size: 50px;
+  text-align: center;
+  width: 60%;
+  margin: auto;
+  margin-top: 30px;
+  font-family: sans-serif;
+}
+.filter-box{
+  width: 200px;
+  margin-top: 40px;
+
+}
+#filter{
+  display: flex;
+  justify-content: space-between;
+  width: fit-content;
+  margin: auto;
+
+}
+#god{
+  height: 25px;
+  width: 160px;
+  border: solid 1px;
+  border-radius: 3px;
+  border-color: #8A0E9B;
+}
+#sort{
+  height: 29px;
+  width: 160px;
+  border-radius: 3px;
+  border-color: #8A0E9B;
+}
+#filt{
+  height: 29px;
+  width: 160px;
+  border-radius: 3px;
+  border-color: #8A0E9B;
+}
+
+#podatoci{
+  font-size: 25px;
+}
+#tabela{
+  border: solid 2px #8A0E9B;
+  border-collapse: collapse;
+
+
+  
+}
+#tabela td,th{
+  border: solid 2px #8A0E9B;
+  padding: 7px;
+  
+}
+
+#table-wrapper{
+  width: 70%;
+  margin:  auto;
+}
+
+#nazad{
+ margin-top: 50px ;
+ width: 300px;
+ height: 28px;
+ border-radius: 5px ;
+ border-color: #8A0E9B ;
+ background-color: white;
+}
