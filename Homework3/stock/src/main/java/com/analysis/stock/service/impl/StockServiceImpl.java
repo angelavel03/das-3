@@ -18,9 +18,9 @@ public class StockServiceImpl implements StockService {
         this.stockRepository = stockRepository;
     }
 
-    @Override
-    public List<Stock> getAllStocks() {
-        return stockRepository.findAll();
-    }
 
+    @Override
+    public List<Stock> getAllStocksByIssuerName(String name) {
+        return stockRepository.findAllByName(name);
+    }
 }

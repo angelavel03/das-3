@@ -5,5 +5,5 @@ import com.analysis.stock.model.Stock;
 import java.util.List;
 
 public interface StockService {
-    List<Stock> getAllStocks();
+    List<Stock> getAllStocksByIssuerName(String name);
 }
