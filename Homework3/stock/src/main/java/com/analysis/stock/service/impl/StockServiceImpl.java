@@ -3,10 +3,16 @@ package com.analysis.stock.service.impl;
 import com.analysis.stock.model.Stock;
 import com.analysis.stock.repository.StockRepository;
 import com.analysis.stock.service.StockService;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +23,8 @@ public class StockServiceImpl implements StockService {
     public StockServiceImpl(StockRepository stockRepository) {
         this.stockRepository = stockRepository;
     }
+
+
 
     @Override
     public List<Stock> getAllStocksByIssuerName(String name) {

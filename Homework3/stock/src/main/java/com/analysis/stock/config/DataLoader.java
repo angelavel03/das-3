@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
-//@Component
+@Component
 public class DataLoader implements CommandLineRunner {
     private final ObjectMapper objectMapper;
     private final StockRepository stockRepository;

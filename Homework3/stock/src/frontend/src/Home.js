@@ -8,7 +8,7 @@ export default function Home() {
 
     // Fetch the list of companies
     useEffect(() => {
-        fetch("http://localhost:8080/")
+        fetch(`http://localhost:8080/api/all/names`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error("Failed to fetch companies");
