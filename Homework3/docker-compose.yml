@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  main-app:
+    image: stocks-app
+    build:
+      context: ./stocks-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - issuer-microservice
+
+  issuer-microservice:
+    image: issuer-microservice
+    build:
+      context: ./issuer-microservice
+    ports:
+      - "8081:8081"
+
+  react-app:
+    image: react-app
+    build:
+      context: ./react-app
+    ports:
+      - "3000:80"
